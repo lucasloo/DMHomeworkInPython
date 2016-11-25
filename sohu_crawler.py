@@ -2,7 +2,7 @@ import urllib
 import sys
 from bs4 import BeautifulSoup
 from urllib import request, error
-from file_writer import FileWriter
+from file_manager import FileWriter
 
 
 class SohuCrawler:
@@ -17,7 +17,7 @@ class SohuCrawler:
         counter = 1
         while counter < 10:
             print("initializing list " + str(counter) + '...')
-            url = self.get_list_url(index, counter)
+            url = SohuCrawler.get_list_url(index, counter)
             if self.init_page(url):
                 soup = BeautifulSoup(self.page, "html.parser")
                 # init the type
@@ -50,7 +50,7 @@ class SohuCrawler:
                 print("current:" + str(self.total))
             self.file_writer.file_obj.write('\n')
         finally:
-            self.file_writer.file_obj.close()
+            self.file_writer.close()
 
     def init_page(self, url):
         try:
@@ -62,14 +62,12 @@ class SohuCrawler:
             self.page = None
             print("url error\n")
             return False
-        except error.HTTPError:
-            print("http error\n")
-            return False
         except ConnectionResetError:
             print("ConnectionResetError\n")
             return False
 
-    def get_list_url(self, index, num):
+    @staticmethod
+    def get_list_url(index, num):
         return "http://m.sohu.com/cr/" + str(index) + "/?page=" + str(num)
 
     def clear(self):
