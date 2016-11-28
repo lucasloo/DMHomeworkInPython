@@ -15,7 +15,7 @@ class SohuCrawler:
 
     def init_index_list(self, index):
         counter = 1
-        while counter < 10:
+        while counter < 1500:
             print("initializing list " + str(counter) + '...')
             url = SohuCrawler.get_list_url(index, counter)
             if self.init_page(url):
@@ -23,20 +23,19 @@ class SohuCrawler:
                 # init the type
                 if self.type == '' and soup.find(class_="cTtl"):
                     self.type = soup.find(class_="cTtl").string
-                # init file writer
-                if self.file_writer is None:
-                    self.file_writer = FileWriter('sohu/', self.type + '.txt')
                 # init the index_list
                 for content in soup.find_all('a', class_="h4 h4New"):
                     self.index_list.append(content.get("href"))
             counter += 1
 
     def crawler(self):
-        try:
-            for tmp in self.index_list:
-                tmp_url = "http://m.sohu.com" + tmp
-                if self.init_page(tmp_url):
-                    soup = BeautifulSoup(self.page, "html.parser")
+        for tmp in self.index_list:
+            tmp_url = "http://m.sohu.com" + tmp
+            if self.init_page(tmp_url):
+                soup = BeautifulSoup(self.page, "html.parser")
+                # init file writer
+                self.file_writer = FileWriter('sohu/' + self.type + '/', str(self.total) + '.txt')
+                try:
                     # get title
                     if soup.find('h1', class_='h1') and soup.find('h1', class_='h1').string:
                         title = soup.find('h1', class_='h1').string
@@ -46,11 +45,10 @@ class SohuCrawler:
                     for content in contents:
                         if content.string:
                             self.file_writer.file_obj.write(content.string + '\n')
-                self.total += 1
-                print("current:" + str(self.total))
-            self.file_writer.file_obj.write('\n')
-        finally:
-            self.file_writer.close()
+                finally:
+                    self.file_writer.close()
+            self.total += 1
+            print("current:" + str(self.total))
 
     def init_page(self, url):
         try:
@@ -65,6 +63,9 @@ class SohuCrawler:
         except ConnectionResetError:
             print("ConnectionResetError\n")
             return False
+        except UnicodeDecodeError:
+            print('UnicodeDecodeError')
+            return False
 
     @staticmethod
     def get_list_url(index, num):
@@ -78,8 +79,8 @@ class SohuCrawler:
         self.total = 0
 
     def start(self):
-        index = 2
-        while index < 20:
+        index = 18
+        while index < 22:
             self.init_index_list(index)
             self.crawler()
             print("finish crawling:" + self.type)

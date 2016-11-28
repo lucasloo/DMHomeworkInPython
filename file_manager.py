@@ -26,5 +26,18 @@ class FileReader:
                 file_list.append(file)
         return file_list
 
+    @staticmethod
+    def get_dirs(file_path):
+        dirs_list = []
+        files = os.listdir(file_path)
+        for file in files:
+            if '.' in file:
+                continue
+            else:
+                dirs_list.append(file)
+        return dirs_list
+
     def close(self):
         self.file_obj.close()
+
+print(FileReader.get_dirs("sohu/"))
